@@ -1,126 +1,153 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="zh-CN">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<title>情绪酒馆 - Emotion Bar</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>情绪酒馆 - Mood Mixology</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Lato:wght@300;400&display=swap" rel="stylesheet">
 <style>
-  html, body { margin:0; padding:0; height:100%; background:#0c0c0e; color:#fff; font-family:'Lato',sans-serif; overflow:hidden; }
-  .screen { display:none; height:100%; align-items:center; justify-content:center; flex-direction:column; text-align:center; padding:20px; }
-  .active { display:flex; }
-  button { padding:14px 28px; font-size:16px; border-radius:999px; border:none; background:white; color:black; cursor:pointer; }
-  .glass { width:220px; height:320px; border-radius:0 0 40px 40px; border:2px solid rgba(255,255,255,0.2); position:relative; overflow:hidden; margin-bottom:16px; }
-  .liquid { position:absolute; bottom:0; width:100%; transition:height 0.3s ease; }
-  .wave { position:absolute; top:-20px; width:200%; height:40px; background:rgba(255,255,255,0.2); filter:blur(2px); animation:wave 3s linear infinite; }
-  @keyframes wave { from{transform:translateX(0);} to{transform:translateX(-50%);} }
-  .hint { opacity:0.4; letter-spacing:0.3em; font-size:12px; margin-bottom:10px; }
-  #recipe { list-style:none; padding:0; opacity:.8; font-size:14px; margin-top:12px; }
-  #drinkName { font-family:'Cormorant Garamond', serif; font-size:2em; margin:0; }
-  #note { margin-top:8px; font-style:italic; opacity:.6; }
+  body { background-color: #0c0c0e; color: #EAEAEA; font-family: 'Lato', sans-serif; margin:0; overflow:hidden; }
+  .ios-circle-fix { position: relative; overflow: hidden; border-radius: 9999px; width: 15rem; height: 15rem; }
 </style>
 </head>
 <body>
+<div id="root"></div>
 
-<!-- ① INTRO -->
-<div id="intro" class="screen active">
-  <h1>今天的情绪，适合一杯什么？</h1>
-  <button onclick="startMix()">开始调制</button>
-</div>
+<script type="text/babel">
+const { useState, useEffect, useRef } = React;
 
-<!-- ② MIX -->
-<div id="mixing" class="screen">
-  <div class="glass">
-    <div id="liquid" class="liquid" style="height:0%; background:linear-gradient(to top,#ff7a18,#ffb347);">
-      <div class="wave"></div>
-    </div>
-  </div>
-  <div class="hint">摇动手机，调制情绪</div>
-  <div id="percent" style="font-size:10px;opacity:.3">0%</div>
-</div>
+// ---- 简化图标 ----
+const ChevronLeft = () => <svg width="24" height="24" fill="none" stroke="currentColor"><path d="m15 18-6-6 6-6"/></svg>;
 
-<!-- ③ RESULT -->
-<div id="result" class="screen">
-  <h2 id="drinkName"></h2>
-  <p id="abv"></p>
-  <ul id="recipe"></ul>
-  <p id="note"></p>
-  <button onclick="restart()">再来一杯</button>
-</div>
-
-<script>
-let view = 'intro';
-let shakeEnergy = 0;
-const stats = { totalEnergy:0, maxStrength:0, shakeCount:0 };
-const mood = 'ANGRY'; // 展示版本可以随意修改
-const moodProfile = { ANGRY:{ideal:35,abvBase:18}, CALM:{ideal:18,abvBase:6}, SAD:{ideal:22,abvBase:10}, HAPPY:{ideal:28,abvBase:12} };
-
-const ingredientDB = {
-  ANGRY: { base:['威士忌','龙舌兰','黑朗姆'], note:['辣椒','苦精','烟熏盐'], garnish:['炭烧橙皮','辣椒片'] },
-  CALM: { base:['琴酒','清酒','白朗姆'], note:['薰衣草','蜂蜜','洋甘菊'], garnish:['柠檬皮','白花'] },
-  SAD: { base:['白兰地','波本','红酒'], note:['可可','黑糖','咖啡'], garnish:['肉桂棒'] },
-  HAPPY: { base:['伏特加','气泡酒','白葡萄酒'], note:['柑橘','莓果','薄荷'], garnish:['水果片','薄荷叶'] }
+// ---- 情绪数据库 ----
+const EMOTION_DATABASE = {
+  joy:{label:'喜悦与明亮',colors:['from-[#FF9A9E] to-[#FECFEF]'],blobColors:['bg-[#FF9A9E]','bg-[#F6D365]','bg-[#FECFEF]'],bases:['桃红香槟','百香果利口酒'],notes:{top:'甜橙',middle:'茉莉',baseNote:'香草'},names:['夏日多巴胺'],quote:'愿你口袋里装着此刻的糖，去抵御未来的寒。'},
+  calm:{label:'平静与本心',colors:['from-[#D7DDE8] to-[#757F9A]'],blobColors:['bg-[#BBD2C5]','bg-[#93A5CF]','bg-[#757F9A]'],bases:['白葡萄酒','白朗姆'],notes:{top:'青草',middle:'绿茶',baseNote:'檀香'},names:['禅意花园'],quote:'心若止水，万物皆安。这就足够了。'}
 };
 
-const shakeAudio = new Audio('shake.mp3');
-const liquidAudio = new Audio('liquid.mp3');
-shakeAudio.loop=true; liquidAudio.loop=true; shakeAudio.volume=0; liquidAudio.volume=0;
+// ---- 主程序 ----
+const App = () => {
+  const [view,setView] = useState('ANALYSIS');
+  const [inputText,setInputText] = useState('');
+  const [moodCategory,setMoodCategory] = useState('calm');
+  const [currentDrink,setCurrentDrink] = useState(null);
+  const [history,setHistory] = useState([]);
+  const [shakeValue,setShakeValue] = useState(0);
+  const shakeRef = useRef(0);
+  const drinkReadyRef = useRef(false);
 
-function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
+  // ---- 文本分析 ----
+  const handleInputChange=(e)=>{
+    const text=e.target.value;
+    setInputText(text);
+    const keywords = {
+      joy:/开心|快乐|喜|笑/i,
+      calm:/平静|淡定|安宁/i
+    };
+    if(keywords.joy.test(text)) setMoodCategory('joy');
+    else setMoodCategory('calm');
+  };
 
-async function startMix(){
-  if(typeof DeviceMotionEvent?.requestPermission==='function'){
-    const res = await DeviceMotionEvent.requestPermission();
-    if(res!=='granted') return alert('需要动作权限');
-  }
-  shakeEnergy=0; stats.totalEnergy=0; stats.shakeCount=0; stats.maxStrength=0;
-  document.getElementById('liquid').style.height='0%';
-  document.getElementById('percent').innerText='0%';
-  show('mixing'); view='mixing';
-}
+  // ---- 生成饮品 ----
+  const generateDrink=(manual=true)=>{
+    if(!inputText.trim() && manual) return;
+    setView('MIXING');
+    drinkReadyRef.current = false;
+    const data=EMOTION_DATABASE[moodCategory];
+    const drink={
+      id:Date.now(),
+      mood:moodCategory,
+      name:data.names[0],
+      colorClass:data.colors[0],
+      blobColors:data.blobColors,
+      ingredients:{base:data.bases[Math.floor(Math.random()*data.bases.length)],...data.notes},
+      quote:data.quote,
+      abv:(5+Math.random()*20).toFixed(1)
+    };
+    setCurrentDrink(drink);
+    // 如果是手动点击，延时显示
+    if(manual){
+      setTimeout(()=>{
+        setHistory(prev=>[drink,...prev]);
+        setView('RESULT');
+      },3500);
+    }
+  };
 
-window.addEventListener('devicemotion', e=>{
-  if(view!=='mixing') return;
-  const a=e.accelerationIncludingGravity;
-  if(!a) return;
-  const strength=Math.abs(a.x)+Math.abs(a.y)+Math.abs(a.z);
-  if(strength<15) return;
-  stats.totalEnergy+=strength;
-  stats.maxStrength=Math.max(stats.maxStrength,strength);
-  stats.shakeCount++;
-  shakeEnergy=Math.min(shakeEnergy+strength*0.4,100);
-  document.getElementById('liquid').style.height=shakeEnergy+'%';
-  document.getElementById('percent').innerText=Math.floor(shakeEnergy)+'%';
-  const norm=Math.min(strength/40,1);
-  shakeAudio.volume=norm*0.8; liquidAudio.volume=norm*0.5;
-  if(shakeAudio.paused) shakeAudio.play();
-  if(liquidAudio.paused) liquidAudio.play();
-  if(shakeEnergy>=100) finishMix();
-});
+  // ---- 摇动监听 ----
+  useEffect(()=>{
+    if(!('DeviceMotionEvent' in window)) return;
+    const handler = async (e)=>{
+      if(view!=='ANALYSIS') return;
+      if(typeof DeviceMotionEvent?.requestPermission==='function'){
+        const res = await DeviceMotionEvent.requestPermission();
+        if(res!=='granted') return;
+      }
+      const a=e.accelerationIncludingGravity;
+      if(!a) return;
+      const strength=Math.abs(a.x)+Math.abs(a.y)+Math.abs(a.z);
+      if(strength<15) return;
+      shakeRef.current+=strength;
+      setShakeValue(Math.min(shakeRef.current,100));
+      if(shakeRef.current>70 && !drinkReadyRef.current){
+        drinkReadyRef.current = true;
+        generateDrink(false);
+      }
+    };
+    window.addEventListener('devicemotion',handler);
+    return ()=>window.removeEventListener('devicemotion',handler);
+  },[view]);
 
-function finishMix(){
-  view='result';
-  shakeAudio.pause(); liquidAudio.pause();
-  const profile=moodProfile[mood];
-  const strengthScore=Math.min(stats.maxStrength/profile.ideal,1.5);
-  const controlScore=Math.min(stats.shakeCount/40,1);
-  const abv=(profile.abvBase+strengthScore*6+controlScore*4).toFixed(1);
+  return (
+    <div className="h-full w-full flex flex-col relative px-6 py-10">
+      {view==='ANALYSIS' && (
+        <div className="flex flex-col items-center justify-center h-full">
+          <div className="ios-circle-fix mb-10 flex items-end justify-center">
+            <div className="absolute bottom-0 w-full h-[40%] bg-gradient-to-t from-blue-400 to-blue-200" style={{height:shakeValue+'%'}}></div>
+          </div>
+          <textarea
+            className="w-full max-w-sm p-4 text-center text-2xl font-artistic text-white bg-transparent placeholder-white/10 focus:outline-none mb-6"
+            placeholder="告诉我，你现在感觉如何？"
+            value={inputText} onChange={handleInputChange} rows={2}/>
+          <button onClick={()=>generateDrink(true)}>开始调制</button>
+          {shakeValue>0 && <p className="mt-4 text-white/40">摇动进度: {Math.floor(shakeValue)}%</p>}
+        </div>
+      )}
 
-  // 生成配方
-  const pool=ingredientDB[mood];
-  const base=abv>18?pool.base[0]:pool.base[Math.floor(Math.random()*pool.base.length)];
-  const note=stats.shakeCount>30?pool.note[Math.floor(Math.random()*pool.note.length)]:pool.note[0];
-  const garnish=pool.garnish[Math.floor(Math.random()*pool.garnish.length)];
+      {view==='MIXING' && currentDrink && (
+        <div className="flex flex-col items-center justify-center h-full">
+          <div className="ios-circle-fix mb-8 flex items-end justify-center">
+            <div className="absolute bottom-0 w-full bg-gradient-to-t" style={{height:'65%',background:'linear-gradient(to top,#ff9a9e,#fecfeF)'}}></div>
+          </div>
+          <p>正在提取情绪精华...</p>
+        </div>
+      )}
 
-  document.getElementById('drinkName').innerText='情绪特调';
-  document.getElementById('abv').innerText='酒精度 '+abv+'%';
-  document.getElementById('recipe').innerHTML=`<li>基酒：${base}</li><li>风味：${note}</li><li>点缀：${garnish}</li>`;
-  document.getElementById('note').innerText=abv>20?'这一杯，摇得太用力了。':abv<8?'更像一杯温柔的情绪饮料。':'力度刚好，情绪被完美溶解。';
+      {view==='RESULT' && currentDrink && (
+        <div className="flex flex-col items-center h-full">
+          <h1 id="drinkName" className="text-3xl font-artistic mb-2">{currentDrink.name}</h1>
+          <p className="text-white/30 mb-4">酒精度: {currentDrink.abv}%</p>
+          <ul id="recipe" className="mb-4">
+            <li>基酒: {currentDrink.ingredients.base}</li>
+            <li>前调: {currentDrink.ingredients.top}</li>
+            <li>中调: {currentDrink.ingredients.middle}</li>
+            <li>尾调: {currentDrink.ingredients.baseNote}</li>
+          </ul>
+          <p id="note" className="italic text-white/40 text-center mb-4">“{currentDrink.quote}”</p>
+          <button onClick={()=>{ setInputText(''); shakeRef.current=0; setShakeValue(0); setView('ANALYSIS'); }}>再来一杯</button>
+        </div>
+      )}
+    </div>
+  );
+};
 
-  show('result');
-}
-
-function restart(){ show('intro'); view='intro'; }
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
 </script>
-
 </body>
 </html>
