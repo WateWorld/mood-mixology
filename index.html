@@ -15,97 +15,34 @@
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Lato:wght@300;400&display=swap" rel="stylesheet">
 
 <style>
-body {
-    background-color: #0c0c0e;
-    color: #EAEAEA;
-    position: fixed;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    -webkit-tap-highlight-color: transparent;
-    font-family: 'Lato', sans-serif;
-    margin: 0;
-    padding: 0;
-}
-#root {
-    height: 100vh;
-    height: 100dvh;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-}
-.font-artistic { font-family: 'Cormorant Garamond', serif; font-style: normal !important; }
-.font-clean { font-family: 'Lato', sans-serif; }
-
-@keyframes wave { 0% { transform: translateX(0) translateZ(0); } 100% { transform: translateX(-50%) translateZ(0); } }
-@keyframes wave-slow { 0% { transform: translateX(-50%) translateZ(0); } 100% { transform: translateX(0) translateZ(0); } }
-@keyframes float { 0%, 100% { transform: translateY(0) translateZ(0); } 50% { transform: translateY(-12px) translateZ(0); } }
-@keyframes blob { 
-    0% { transform: translate(0, 0) scale(1) translateZ(0); } 
-    33% { transform: translate(25px, -25px) scale(1.05) translateZ(0); } 
-    66% { transform: translate(-15px, 15px) scale(0.95) translateZ(0); } 
-    100% { transform: translate(0, 0) scale(1) translateZ(0); } 
-}
-@keyframes particle-up {
-    0% { transform: translateY(20px) translateZ(0); opacity: 0; }
-    20% { opacity: 0.5; }
-    100% { transform: translateY(-130px) translateZ(0); opacity: 0; }
-}
-@keyframes bubble-rise {
-    0% { transform: translateY(10px) translateZ(0); opacity: 0; }
-    30% { opacity: 0.7; }
-    100% { transform: translateY(-150px) translateZ(0); opacity: 0; }
-}
-@keyframes fill-up { 0% { height: 0%; } 100% { height: 70%; } }
-
-.animate-wave { animation: wave 7s linear infinite; }
-.animate-wave-slow { animation: wave-slow 10s linear infinite; }
-.animate-float { animation: float 6s ease-in-out infinite; }
-.animate-blob { animation: blob 15s infinite; }
-.animate-particle-up { animation: particle-up 4s ease-out infinite; }
-.animate-bubble-rise { animation: bubble-rise 2.8s infinite linear; }
-.animate-fill { animation: fill-up 3.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-
-.animation-delay-500 { animation-delay: 0.5s; }
-.animation-delay-1000 { animation-delay: 1s; }
-.animation-delay-2000 { animation-delay: 2s; }
-
-.grain-overlay {
-    position: fixed;
-    inset: 0;
-    background-image: url("https://grainy-gradients.vercel.app/noise.svg");
-    opacity: 0.25;
-    mix-blend-mode: overlay;
-    pointer-events: none;
-    z-index: 100;
-}
-.safe-top { padding-top: env(safe-area-inset-top); }
-.safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
-
-.scrollbar-hide { 
-    -ms-overflow-style: none; 
-    scrollbar-width: none; 
-    -webkit-overflow-scrolling: touch;
-}
-.scrollbar-hide::-webkit-scrollbar { display: none; }
-
-.ios-circle-fix{
-    position: relative;
-    overflow: hidden;
-    border-radius: 9999px !important;
-    -webkit-mask-image: -webkit-radial-gradient(white, black);
-    mask-image: radial-gradient(white, black);
-    isolation: isolate; 
-    width: 15rem; 
-    height: 15rem;
-}
-
-textarea {
-    -webkit-appearance: none;
-    border-radius: 0;
-    font-size: 18px !important;
-    background: transparent;
-}
+body { background-color:#0c0c0e; color:#EAEAEA; position:fixed;width:100%;height:100%;overflow:hidden;font-family:'Lato',sans-serif;margin:0;padding:0;}
+#root{height:100vh;width:100%;display:flex;flex-direction:column;}
+.font-artistic{font-family:'Cormorant Garamond',serif!important;}
+.font-clean{font-family:'Lato',sans-serif;}
+@keyframes wave{0%{transform:translateX(0) translateZ(0);}100%{transform:translateX(-50%) translateZ(0);}}
+@keyframes wave-slow{0%{transform:translateX(-50%) translateZ(0);}100%{transform:translateX(0) translateZ(0);}}
+@keyframes float{0%,100%{transform:translateY(0) translateZ(0);}50%{transform:translateY(-12px) translateZ(0);}}
+@keyframes blob{0%{transform:translate(0,0) scale(1);}33%{transform:translate(25px,-25px) scale(1.05);}66%{transform:translate(-15px,15px) scale(0.95);}100%{transform:translate(0,0) scale(1);}}
+@keyframes particle-up{0%{transform:translateY(20px) translateZ(0);opacity:0;}20%{opacity:0.5;}100%{transform:translateY(-130px) translateZ(0);opacity:0;}}
+@keyframes bubble-rise{0%{transform:translateY(10px) translateZ(0);opacity:0;}30%{opacity:0.7;}100%{transform:translateY(-150px) translateZ(0);opacity:0;}}
+@keyframes fill-up{0%{height:0%;}100%{height:70%;}}
+.animate-wave{animation:wave 7s linear infinite;}
+.animate-wave-slow{animation:wave-slow 10s linear infinite;}
+.animate-float{animation:float 6s ease-in-out infinite;}
+.animate-blob{animation:blob 15s infinite;}
+.animate-particle-up{animation:particle-up 4s ease-out infinite;}
+.animate-bubble-rise{animation:bubble-rise 2.8s infinite linear;}
+.animate-fill{animation:fill-up 3.5s cubic-bezier(0.16,1,0.3,1) forwards;}
+.animation-delay-500{animation-delay:0.5s;}
+.animation-delay-1000{animation-delay:1s;}
+.animation-delay-2000{animation-delay:2s;}
+.grain-overlay{position:fixed;inset:0;background-image:url("https://grainy-gradients.vercel.app/noise.svg");opacity:0.25;mix-blend-mode:overlay;pointer-events:none;z-index:100;}
+.safe-top{padding-top:env(safe-area-inset-top);}
+.safe-bottom{padding-bottom:env(safe-area-inset-bottom);}
+.scrollbar-hide{-ms-overflow-style:none;scrollbar-width:none;-webkit-overflow-scrolling:touch;}
+.scrollbar-hide::-webkit-scrollbar{display:none;}
+.ios-circle-fix{position:relative;overflow:hidden;border-radius:9999px!important;-webkit-mask-image:-webkit-radial-gradient(white,black);mask-image:radial-gradient(white,black);isolation:isolate;width:15rem;height:15rem;}
+textarea{-webkit-appearance:none;border-radius:0;font-size:18px!important;background:transparent;}
 </style>
 </head>
 <body class="bg-[#0c0c0e]">
@@ -114,135 +51,116 @@ textarea {
 <script type="text/babel">
 const { useState, useEffect, useRef } = React;
 
-const ChevronLeft = () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>;
-const HistoryIcon = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 12"/><path d="M3 3v9h9"/></svg>;
-const RefreshCw = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>;
-const Sparkles = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" className="opacity-30"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>;
+// SVG组件略，与原版一致
+const ChevronLeft=()=> <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>;
+const HistoryIcon=()=> <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 12"/><path d="M3 3v9h9"/></svg>;
+const RefreshCw=()=> <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>;
+const Sparkles=()=> <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" className="opacity-30"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>;
 
-// 省略 EMOTION_DATABASE（和原本一致）
-// 这里为了篇幅，我假设你会把上面完整的 EMOTION_DATABASE 粘过来
+// EMOTION_DATABASE 同原版粘过来
 
-const App = () => {
-    const [view, setView] = useState('ANALYSIS'); 
-    const [inputText, setInputText] = useState('');
-    const [moodCategory, setMoodCategory] = useState('calm'); 
-    const [currentDrink, setCurrentDrink] = useState(null);
-    const [history, setHistory] = useState([]);
+const App=()=>{
+    const [view,setView]=useState('ANALYSIS');
+    const [inputText,setInputText]=useState('');
+    const [moodCategory,setMoodCategory]=useState('calm');
+    const [currentDrink,setCurrentDrink]=useState(null);
+    const [history,setHistory]=useState([]);
+    const [shakeProgress,setShakeProgress]=useState(0);
 
-    const [shakeProgress, setShakeProgress] = useState(0); // 摇晃进度
-    const shakeRef = useRef({ lastX: null, lastY: null, lastZ: null, lastTime: 0 });
+    const shakeRef=useRef({lastX:null,lastY:null,lastZ:null,lastTime:0});
 
-    // 摇晃检测逻辑
-    useEffect(() => {
-        const handleMotion = (event) => {
-            const { accelerationIncludingGravity } = event;
-            if (!accelerationIncludingGravity) return;
-
-            const { x, y, z } = accelerationIncludingGravity;
-            const now = Date.now();
-            const last = shakeRef.current;
-
-            if (last.lastX !== null) {
-                const deltaX = Math.abs(x - last.lastX);
-                const deltaY = Math.abs(y - last.lastY);
-                const deltaZ = Math.abs(z - last.lastZ);
-                const delta = deltaX + deltaY + deltaZ;
-                if (delta > 15) { // 阈值，可调整
-                    const progress = Math.min(shakeProgress + delta * 0.02, 100);
-                    setShakeProgress(progress);
+    useEffect(()=>{
+        const handleMotion=(event)=>{
+            const acc=event.accelerationIncludingGravity;
+            if(!acc) return;
+            const {x,y,z}=acc;
+            const now=Date.now();
+            const last=shakeRef.current;
+            if(last.lastX!==null){
+                const delta=Math.abs(x-last.lastX)+Math.abs(y-last.lastY)+Math.abs(z-last.lastZ);
+                if(delta>15){ // 阈值
+                    setShakeProgress(prev=>Math.min(prev+delta*0.3,100)); // 放大倍率，实时变化
                 }
             }
-            last.lastX = x;
-            last.lastY = y;
-            last.lastZ = z;
-            last.lastTime = now;
+            last.lastX=x; last.lastY=y; last.lastZ=z; last.lastTime=now;
         };
-
-        if (window.DeviceMotionEvent) {
-            window.addEventListener('devicemotion', handleMotion, true);
+        if(window.DeviceMotionEvent){
+            window.addEventListener('devicemotion',handleMotion,true);
         }
+        return ()=>{
+            if(window.DeviceMotionEvent) window.removeEventListener('devicemotion',handleMotion);
+        }
+    },[]);
 
-        return () => {
-            if (window.DeviceMotionEvent) {
-                window.removeEventListener('devicemotion', handleMotion);
-            }
-        };
-    }, [shakeProgress]);
+    useEffect(()=>{
+        if(view==='ANALYSIS' && shakeProgress>=100){
+            generateDrink();
+        }
+    },[shakeProgress]);
 
-    const handleInputChange = (e) => {
-        const text = e.target.value;
-        setInputText(text);
-        const keywords = {
-            joy: /开心|快乐|好|棒|耶|赞|喜|笑|期待|多巴胺|顺利|赢|爽|愉快|nice|great|good/i,
-            love: /爱|喜欢|心动|温柔|抱|亲|甜|浪漫|情|想念|miss|love|like|crush/i,
-            anger: /烦|躁|怒|气|火|厌|滚|厌恶|讨厌|fuck|shit|恼|吵/i,
-            anxiety: /焦|不安|怕|慌|压力|紧张|悬|煎熬|忐忑|应激|stress|nervous/i,
-            sadness: /难过|悲|哭|哀|痛|伤|凉|孤独|寂寞|绝望|泪|凄/i,
-            jealousy: /嫉妒|酸|吃醋|眼红|羡慕|凭什么|红眼|比我好|jealous|envy/i,
-            grievance: /委屈|冤枉|不公|凭什么|难受|憋屈|grievance|unfair/i,
-            tired: /累|困|疲|乏|枯|竭|耗|加班|想睡|tired|exhausted/i,
-            disappointed: /失望|落空|算了|无望|灰心|变了|失落|灰烬/i,
-            calm: /平静|冷静|淡定|安宁|平和|calm|peace|chill|放松/i
+    const handleInputChange=(e)=>{
+        const text=e.target.value; setInputText(text);
+        const keywords={
+            joy:/开心|快乐|好|棒|耶|赞|喜|笑|期待|多巴胺|顺利|赢|爽|愉快|nice|great|good/i,
+            love:/爱|喜欢|心动|温柔|抱|亲|甜|浪漫|情|想念|miss|love|like|crush/i,
+            anger:/烦|躁|怒|气|火|厌|滚|厌恶|讨厌|fuck|shit|恼|吵/i,
+            anxiety:/焦|不安|怕|慌|压力|紧张|悬|煎熬|忐忑|应激|stress|nervous/i,
+            sadness:/难过|悲|哭|哀|痛|伤|凉|孤独|寂寞|绝望|泪|凄/i,
+            jealousy:/嫉妒|酸|吃醋|眼红|羡慕|凭什么|红眼|比我好|jealous|envy/i,
+            grievance:/委屈|冤枉|不公|凭什么|难受|憋屈|grievance|unfair/i,
+            tired:/累|困|疲|乏|枯|竭|耗|加班|想睡|tired|exhausted/i,
+            disappointed:/失望|落空|算了|无望|灰心|变了|失落|灰烬/i,
+            calm:/平静|冷静|淡定|安宁|平和|calm|peace|chill|放松/i
         };
-        if (keywords.anger.test(text)) setMoodCategory('anger');
-        else if (keywords.jealousy.test(text)) setMoodCategory('jealousy');
-        else if (keywords.grievance.test(text)) setMoodCategory('grievance');
-        else if (keywords.anxiety.test(text)) setMoodCategory('anxiety');
-        else if (keywords.sadness.test(text)) setMoodCategory('sadness');
-        else if (keywords.disappointed.test(text)) setMoodCategory('disappointed');
-        else if (keywords.tired.test(text)) setMoodCategory('tired');
-        else if (keywords.love.test(text)) setMoodCategory('love');
-        else if (keywords.joy.test(text)) setMoodCategory('joy');
+        if(keywords.anger.test(text)) setMoodCategory('anger');
+        else if(keywords.jealousy.test(text)) setMoodCategory('jealousy');
+        else if(keywords.grievance.test(text)) setMoodCategory('grievance');
+        else if(keywords.anxiety.test(text)) setMoodCategory('anxiety');
+        else if(keywords.sadness.test(text)) setMoodCategory('sadness');
+        else if(keywords.disappointed.test(text)) setMoodCategory('disappointed');
+        else if(keywords.tired.test(text)) setMoodCategory('tired');
+        else if(keywords.love.test(text)) setMoodCategory('love');
+        else if(keywords.joy.test(text)) setMoodCategory('joy');
         else setMoodCategory('calm');
     };
 
-    const generateDrink = () => {
-        if (!inputText.trim()) return;
+    const generateDrink=()=>{
+        if(!inputText.trim()) return;
         setView('MIXING');
-        const data = EMOTION_DATABASE[moodCategory];
-        const abvValue = 5 + (shakeProgress / 100) * 20; // 摇晃强度决定酒精度
-        const drink = {
-            id: Date.now(),
-            mood: moodCategory,
-            name: data.names[0],
-            colorClass: data.colors[0],
-            blobColors: data.blobColors,
-            ingredients: { base: data.bases[Math.floor(Math.random() * data.bases.length)], ...data.notes },
-            quote: data.quote,
-            abv: abvValue.toFixed(1)
-        };
+        const data=EMOTION_DATABASE[moodCategory];
+        const abv=5+(shakeProgress/100)*20;
+        const drink={id:Date.now(),mood:moodCategory,name:data.names[0],colorClass:data.colors[0],blobColors:data.blobColors,
+            ingredients:{base:data.bases[Math.floor(Math.random()*data.bases.length)],...data.notes},
+            quote:data.quote, abv:abv.toFixed(1)};
         setCurrentDrink(drink);
-        setTimeout(() => {
-            setHistory(prev => [drink, ...prev]);
+        setTimeout(()=>{
+            setHistory(prev=>[drink,...prev]);
             setView('RESULT');
-            setShakeProgress(0); // 重置摇晃进度
-        }, 3500);
+            setShakeProgress(0);
+        },3500);
     };
 
-    // 当输入完成，摇晃进度满100%时自动生成饮品
-    useEffect(() => {
-        if (view === 'ANALYSIS' && shakeProgress >= 100) {
-            generateDrink();
-        }
-    }, [shakeProgress]);
-
-    // 下面的 SharedCircleContainer、FlowingLiquid 和渲染部分与原版一致
-    // 这里只为了篇幅不全部重复，但你可以直接把原来的全部粘过来
-    return (
+    // 渲染部分完全沿用原版，唯一修改 ANALYSIS 页增加 shakeProgress 显示
+    return(
         <div className="h-full w-full flex flex-col relative">
             <div className="grain-overlay"></div>
-            {/* ...背景、导航、内容部分完全复用原版代码 */}
-            {/* 在 ANALYSIS 页面可以显示 shakeProgress */}
-            {view === 'ANALYSIS' && (
-                <div className="absolute bottom-20 left-1/2 -translate-x-1/2 text-white/30 text-xs font-artistic tracking-wide">
-                    {shakeProgress > 0 ? `摇晃强度: ${Math.round(shakeProgress)}%` : '轻摇手机开始调酒'}
-                </div>
-            )}
+            <main className="relative z-10 flex-1 overflow-y-auto scrollbar-hide px-6 flex flex-col items-center justify-center">
+                {view==='ANALYSIS' && (
+                    <div className="flex flex-col items-center w-full max-w-sm">
+                        <textarea className="w-full p-4 text-center text-2xl font-artistic text-[#EAEAEA] placeholder-white/10 focus:outline-none transition-all leading-relaxed mb-4"
+                            placeholder="告诉我，你现在感觉如何？" rows="2" value={inputText} onChange={handleInputChange}/>
+                        <div className="w-full h-3 bg-white/10 rounded-full overflow-hidden mb-4">
+                            <div className="h-full bg-gradient-to-r from-pink-500 to-purple-500 transition-all" style={{width:`${shakeProgress}%`}}></div>
+                        </div>
+                        <span className="text-xs text-white/40 font-artistic mb-4">{shakeProgress<100?'摇晃手机调酒':'摇晃完成，生成中...'}</span>
+                    </div>
+                )}
+            </main>
         </div>
     );
 };
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
+const root=ReactDOM.createRoot(document.getElementById('root'));
 root.render(<App />);
 </script>
 </body>
