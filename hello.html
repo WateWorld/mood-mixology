@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>情绪酒馆 - Mood Mixology</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=Lato:wght@300;400&display=swap" rel="stylesheet">
+
+<style>
+body {
+  background:#0c0c0e;
+  color:#EAEAEA;
+  margin:0;
+  overflow:hidden;
+  font-family:'Lato',sans-serif;
+}
+#root { height:100dvh; }
+.font-artistic { font-family:'Cormorant Garamond',serif; }
+
+@keyframes wave { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+.animate-wave { animation:wave 7s linear infinite; }
+.animate-wave-slow { animation:wave 10s linear infinite reverse; }
+
+.ios-circle-fix{
+  width:15rem;height:15rem;
+  border-radius:9999px;
+  overflow:hidden;
+  position:relative;
+  -webkit-mask-image:-webkit-radial-gradient(white,black);
+}
+</style>
+</head>
+
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+const {useState,useEffect,useRef} = React;
+
+const EMOTION_DATABASE={
+  calm:{
+    label:'平静与本心',
+    colors:['from-[#D7DDE8] to-[#757F9A]'],
+    bases:['白葡萄酒','白朗姆'],
+    notes:{top:'青草·梨',middle:'绿茶·铃兰',baseNote:'檀香·棉花'},
+    names:['禅意花园 Zen Garden'],
+    quote:'心若止水，万物皆安。'
+  },
+  anger:{
+    label:'强烈与爆发',
+    colors:['from-[#F5576C] to-[#F093FB]'],
+    bases:['波本威士忌','高度朗姆'],
+    notes:{top:'黑胡椒',middle:'生姜',baseNote:'橡木'},
+    names:['燃烧之心 Burning Heart'],
+    quote:'让愤怒成为燃料，而不是枷锁。'
+  }
+};
+
+function App(){
+  const [view,setView]=useState('ANALYSIS');
+  const [text,setText]=useState('');
+  const [mood,setMood]=useState('calm');
+  const [drink,setDrink]=useState(null);
+  const [shake,setShake]=useState(0);
+  const shakeRef=useRef(0);
+
+  const requestPermission=async()=>{
+    if(typeof DeviceMotionEvent?.requestPermission==='function'){
+      const r=await DeviceMotionEvent.requestPermission();
+      if(r!=='granted') alert('需要动作感应权限');
+    }
+  };
+
+  const startMix=async()=>{
+    if(!text.trim())return;
+    await requestPermission();
+    const d=EMOTION_DATABASE[mood];
+    setDrink({
+      id:Date.now(),
+      ...d,
+      base:d.bases[Math.floor(Math.random()*d.bases.length)],
+      abv:(5+Math.random()*20).toFixed(1)
+    });
+    setView('MIXING');
+  };
+
+  useEffect(()=>{
+    if(view!=='MIXING')return;
+    let last=0;
+    const onMove=e=>{
+      const a=e.accelerationIncludingGravity;
+      if(!a)return;
+      const now=Date.now();
+      if(now-last<100)return;
+      last=now;
+      const power=Math.abs(a.x)+Math.abs(a.y)+Math.abs(a.z);
+      if(power>15){
+        shakeRef.current=Math.min(100,shakeRef.current+power*0.4);
+        setShake(shakeRef.current);
+        navigator.vibrate?.(8);
+      }
+    };
+    window.addEventListener('devicemotion',onMove);
+    return()=>window.removeEventListener('devicemotion',onMove);
+  },[view]);
+
+  useEffect(()=>{
+    if(view==='MIXING' && shake>=100){
+      setView('RESULT');
+      setShake(0);
+      shakeRef.current=0;
+    }
+  },[shake,view]);
+
+  return(
+    <div className="h-full flex flex-col items-center justify-center px-6">
+      {view==='ANALYSIS'&&(
+        <>
+          <div className="ios-circle-fix border border-white/20 mb-10">
+            <div className={`absolute bottom-0 inset-x-0 bg-gradient-to-t ${EMOTION_DATABASE[mood].colors[0]} opacity-60 h-1/2`}>
+              <div className="absolute -top-6 w-[200%] h-12 animate-wave bg-white/20"></div>
+            </div>
+          </div>
+          <textarea
+            className="w-full text-center text-2xl font-artistic bg-transparent outline-none mb-8"
+            placeholder="告诉我你现在的感受"
+            value={text}
+            onChange={e=>{
+              setText(e.target.value);
+              setMood(/怒|烦|气/.test(e.target.value)?'anger':'calm');
+            }}
+          />
+          <button onClick={startMix}
+            className="px-8 py-3 border border-white/20 rounded-full tracking-widest text-xs">
+            开始调制
+          </button>
+        </>
+      )}
+
+      {view==='MIXING'&&drink&&(
+        <>
+          <div className="ios-circle-fix border border-white/20 mb-6">
+            <div
+              className={`absolute bottom-0 inset-x-0 bg-gradient-to-t ${drink.colors[0]} opacity-80 transition-[height] duration-300`}
+              style={{height:`${shake}%`}}>
+              <div className="absolute -top-6 w-[200%] h-12 animate-wave bg-white/20"></div>
+              <div className="absolute -top-4 w-[200%] h-12 animate-wave-slow bg-white/10"></div>
+            </div>
+          </div>
+          <div className="font-artistic tracking-[0.3em] text-white/50">摇动手机调酒</div>
+          <div className="text-xs text-white/30 mt-1">{Math.floor(shake)}%</div>
+        </>
+      )}
+
+      {view==='RESULT'&&drink&&(
+        <>
+          <h1 className="font-artistic text-4xl mb-2">{drink.names[0].split(' ')[0]}</h1>
+          <div className="text-white/40 mb-8">{drink.names[0].split(' ').slice(1).join(' ')}</div>
+          <div className="font-artistic text-5xl mb-4">{drink.abv}%</div>
+          <div className="text-center text-white/40 italic max-w-sm">“{drink.quote}”</div>
+          <button
+            className="mt-10 px-6 py-3 border border-white/20 rounded-full text-xs"
+            onClick={()=>{setView('ANALYSIS');setText('');}}>
+            再来一杯
+          </button>
+        </>
+      )}
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
