@@ -1,167 +1,522 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>情绪酒馆 - Mood Mixology</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>情绪酒馆 - Mood Mixology</title>
+    
+    <!-- 核心库 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-<script src="https://cdn.tailwindcss.com"></script>
-<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- 艺术字体 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Lato:wght@300;400&display=swap" rel="stylesheet"> 
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Lato:wght@300;400&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #0c0c0e;
+            color: #EAEAEA;
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            -webkit-tap-highlight-color: transparent;
+            font-family: 'Lato', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
 
-<style>
-body { background-color:#0c0c0e; color:#EAEAEA; position:fixed;width:100%;height:100%;overflow:hidden;font-family:'Lato',sans-serif;margin:0;padding:0;}
-#root{height:100vh;width:100%;display:flex;flex-direction:column;}
-.font-artistic{font-family:'Cormorant Garamond',serif!important;}
-.font-clean{font-family:'Lato',sans-serif;}
-@keyframes wave{0%{transform:translateX(0) translateZ(0);}100%{transform:translateX(-50%) translateZ(0);}}
-@keyframes wave-slow{0%{transform:translateX(-50%) translateZ(0);}100%{transform:translateX(0) translateZ(0);}}
-@keyframes float{0%,100%{transform:translateY(0) translateZ(0);}50%{transform:translateY(-12px) translateZ(0);}}
-@keyframes blob{0%{transform:translate(0,0) scale(1);}33%{transform:translate(25px,-25px) scale(1.05);}66%{transform:translate(-15px,15px) scale(0.95);}100%{transform:translate(0,0) scale(1);}}
-@keyframes particle-up{0%{transform:translateY(20px) translateZ(0);opacity:0;}20%{opacity:0.5;}100%{transform:translateY(-130px) translateZ(0);opacity:0;}}
-@keyframes bubble-rise{0%{transform:translateY(10px) translateZ(0);opacity:0;}30%{opacity:0.7;}100%{transform:translateY(-150px) translateZ(0);opacity:0;}}
-@keyframes fill-up{0%{height:0%;}100%{height:70%;}}
-.animate-wave{animation:wave 7s linear infinite;}
-.animate-wave-slow{animation:wave-slow 10s linear infinite;}
-.animate-float{animation:float 6s ease-in-out infinite;}
-.animate-blob{animation:blob 15s infinite;}
-.animate-particle-up{animation:particle-up 4s ease-out infinite;}
-.animate-bubble-rise{animation:bubble-rise 2.8s infinite linear;}
-.animate-fill{animation:fill-up 3.5s cubic-bezier(0.16,1,0.3,1) forwards;}
-.animation-delay-500{animation-delay:0.5s;}
-.animation-delay-1000{animation-delay:1s;}
-.animation-delay-2000{animation-delay:2s;}
-.grain-overlay{position:fixed;inset:0;background-image:url("https://grainy-gradients.vercel.app/noise.svg");opacity:0.25;mix-blend-mode:overlay;pointer-events:none;z-index:100;}
-.safe-top{padding-top:env(safe-area-inset-top);}
-.safe-bottom{padding-bottom:env(safe-area-inset-bottom);}
-.scrollbar-hide{-ms-overflow-style:none;scrollbar-width:none;-webkit-overflow-scrolling:touch;}
-.scrollbar-hide::-webkit-scrollbar{display:none;}
-.ios-circle-fix{position:relative;overflow:hidden;border-radius:9999px!important;-webkit-mask-image:-webkit-radial-gradient(white,black);mask-image:radial-gradient(white,black);isolation:isolate;width:15rem;height:15rem;}
-textarea{-webkit-appearance:none;border-radius:0;font-size:18px!important;background:transparent;}
-</style>
+        #root {
+            height: 100vh;
+            height: 100dvh;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .font-artistic { font-family: 'Cormorant Garamond', serif; font-style: normal !important; }
+        .font-clean { font-family: 'Lato', sans-serif; } 
+
+        /* 核心动画 - 硬件加速 */
+        @keyframes wave { 0% { transform: translateX(-50%) translateZ(0); } 100% { transform: translateX(0) translateZ(0); } }
+        @keyframes wave-slow { 0% { transform: translateX(-50%) translateZ(0); } 100% { transform: translateX(0) translateZ(0); } }
+        @keyframes float { 0%, 100% { transform: translateY(0) translateZ(0); } 50% { transform: translateY(-12px) translateZ(0); } }
+        @keyframes blob { 
+            0% { transform: translate(0, 0) scale(1) translateZ(0); } 
+            33% { transform: translate(25px, -25px) scale(1.05) translateZ(0); } 
+            66% { transform: translate(-15px, 15px) scale(0.95) translateZ(0); } 
+            100% { transform: translate(0, 0) scale(1) translateZ(0); } 
+        }
+        @keyframes particle-up {
+            0% { transform: translateY(20px) translateZ(0); opacity: 0; }
+            20% { opacity: 0.5; }
+            100% { transform: translateY(-130px) translateZ(0); opacity: 0; }
+        }
+        @keyframes bubble-rise {
+            0% { transform: translateY(10px) translateZ(0); opacity: 0; }
+            30% { opacity: 0.7; }
+            100% { transform: translateY(-150px) translateZ(0); opacity: 0; }
+        }
+        @keyframes fill-up { 0% { height: 0%; } 100% { height: 70%; } }
+        
+        .animate-wave { animation: wave 7s linear infinite; }
+        .animate-wave-slow { animation: wave-slow 10s linear infinite; }
+        .animate-float { animation: float 6s ease-in-out infinite; }
+        .animate-blob { animation: blob 15s infinite cubic-bezier(0.16, 1, 0.3, 1); }
+        .animate-fill { animation: fill-up 3.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+        .animation-delay-500 { animation-delay: 0.5s; }
+        .animation-delay-1000 { animation-delay: 1s; }
+        .animation-delay-2000 { animation-delay: 2s; }
+
+        .grain-overlay {
+            position: fixed;
+            inset: 0;
+            background-image: url("https://grainy-gradients.vercel.app/noise.svg");
+            opacity: 0.25;
+            mix-blend-mode: overlay;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        .safe-top { padding-top: env(safe-area-inset-top); }
+        .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
+
+        .scrollbar-hide { 
+            -ms-overflow-style: none; 
+            scrollbar-width: none; 
+            -webkit-overflow-scrolling: touch;
+        }
+        .scrollbar-hide::-webkit-scrollbar { display: none; } 
+
+        /* iOS 核心修复：强制圆球裁剪 */
+        .ios-circle-fix {
+            position: relative;
+            overflow: hidden;
+            border-radius: 9999px !important;
+            -webkit-mask-image: -webkit-radial-gradient(white, black);
+            mask-image: radial-gradient(white, black);
+            isolation: isolate; 
+            width: 15rem; 
+            height: 15rem;
+        }
+
+        textarea {
+            -webkit-appearance: none;
+            border-radius: 0;
+            font-size: 18px !important;
+        }
+    </style>
 </head>
 <body class="bg-[#0c0c0e]">
-<div id="root"></div>
+    <div id="root"></div>
 
-<script type="text/babel">
-const { useState, useEffect, useRef } = React;
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
 
-// SVG组件略，与原版一致
-const ChevronLeft=()=> <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>;
-const HistoryIcon=()=> <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 12"/><path d="M3 3v9h9"/></svg>;
-const RefreshCw=()=> <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>;
-const Sparkles=()=> <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" className="opacity-30"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>;
+        const ChevronLeft = () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>;
+        const HistoryIcon = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 12"/><path d="M3 3v9h9"/></svg>;
+        const RefreshCw = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>;
+        const Sparkles = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" className="opacity-30"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>;
 
-// EMOTION_DATABASE 同原版粘过来
-
-const App=()=>{
-    const [view,setView]=useState('ANALYSIS');
-    const [inputText,setInputText]=useState('');
-    const [moodCategory,setMoodCategory]=useState('calm');
-    const [currentDrink,setCurrentDrink]=useState(null);
-    const [history,setHistory]=useState([]);
-    const [shakeProgress,setShakeProgress]=useState(0);
-
-    const shakeRef=useRef({lastX:null,lastY:null,lastZ:null,lastTime:0});
-
-    useEffect(()=>{
-        const handleMotion=(event)=>{
-            const acc=event.accelerationIncludingGravity;
-            if(!acc) return;
-            const {x,y,z}=acc;
-            const now=Date.now();
-            const last=shakeRef.current;
-            if(last.lastX!==null){
-                const delta=Math.abs(x-last.lastX)+Math.abs(y-last.lastY)+Math.abs(z-last.lastZ);
-                if(delta>15){ // 阈值
-                    setShakeProgress(prev=>Math.min(prev+delta*0.3,100)); // 放大倍率，实时变化
-                }
+        const EMOTION_DATABASE = {
+            joy: { 
+                label: '喜悦与明亮', 
+                colors: ['from-[#FF9A9E] to-[#FECFEF]'], 
+                blobColors: ['bg-[#FF9A9E]', 'bg-[#F6D365]', 'bg-[#FECFEF]'], 
+                bases: ['桃红香槟 Rosé', '百香果利口酒'], 
+                notes: { top: '甜橙 · 薄荷', middle: '茉莉 · 接骨木花', baseNote: '香草 · 椰子' },
+                names: ['夏日多巴胺 Dopamine Summer'],
+                quote: '愿你口袋里装着此刻的糖，去抵御未来的寒。' 
+            },
+            love: { 
+                label: '浪漫与依恋', 
+                colors: ['from-[#FBC2EB] to-[#A6C1EE]'], 
+                blobColors: ['bg-[#FBC2EB]', 'bg-[#fad0c4]', 'bg-[#ffd1ff]'], 
+                bases: ['百利甜 Baileys', '莫斯卡托 Moscato'], 
+                notes: { top: '覆盆子 · 白桃', middle: '玫瑰 · 鸢尾花', baseNote: '檀香 · 棉花糖' },
+                names: ['温柔陷阱 Gentle Trap'],
+                quote: '爱是想触碰又收回手，也是这杯酒里融化的冰。' 
+            },
+            sadness: { 
+                label: '悲伤与平静', 
+                colors: ['from-[#a1c4fd] to-[#c2e9fb]'], 
+                blobColors: ['bg-[#5F72BD]', 'bg-[#89f7fe]', 'bg-[#66a6ff]'], 
+                bases: ['干味金酒 Dry Gin', '清酒 Sake'], 
+                notes: { top: '雨水 · 海盐', middle: '睡莲 · 乌龙茶', baseNote: '雪松 · 苔藓' },
+                names: ['蓝色时刻 Blue Hour'],
+                quote: '悲伤是灵魂的休止符，让这杯酒陪你静默片刻。' 
+            },
+            anger: { 
+                label: '强烈与爆发', 
+                colors: ['from-[#F5576C] to-[#F093FB]'], 
+                blobColors: ['bg-[#eb3349]', 'bg-[#F5576C]', 'bg-[#f45c43]'], 
+                bases: ['波本威士忌 Bourbon', '高度朗姆酒'], 
+                notes: { top: '黑胡椒 · 血橙', middle: '生姜 · 烟草', baseNote: '泥煤 · 橡木' },
+                names: ['燃烧之心 Burning Heart'],
+                quote: '愤怒是燃烧的生命力，让这杯酒成为你的燃料。' 
+            },
+            anxiety: { 
+                label: '忐忑与不安', 
+                colors: ['from-[#654ea3] to-[#eaafc8]'], 
+                blobColors: ['bg-[#654ea3]', 'bg-[#4b6cb7]', 'bg-[#eaafc8]'], 
+                bases: ['苦艾酒 Absinthe', '黑金酒'], 
+                notes: { top: '苦橙 · 迷迭香', middle: '杜松子 · 洋甘菊', baseNote: '艾草 · 愈创木' },
+                names: ['混沌理论 Chaos Theory'],
+                quote: '焦虑是未来的借条，今晚我们暂且撕毁它，只喝这杯。' 
+            },
+            jealousy: { 
+                label: '酸涩与嫉妒', 
+                colors: ['from-[#BBD2C5] to-[#536976]'], 
+                blobColors: ['bg-[#BBD2C5]', 'bg-[#98FF98]', 'bg-[#7BB661]'], 
+                bases: ['绿薄荷利口酒', '青柠苏打'], 
+                notes: { top: '柠檬皮 · 罗勒', middle: '青苹果 · 醋栗', baseNote: '白麝香 · 冷杉' },
+                names: ['眼红 Green Eyed'],
+                quote: '酸涩是未曾开口的独白，在杯中悄悄发酵。' 
+            },
+            grievance: { 
+                label: '委屈与沉降', 
+                colors: ['from-[#cfd9df] to-[#e2ebf0]'], 
+                blobColors: ['bg-[#cfd9df]', 'bg-[#8e9eab]', 'bg-[#e2ebf0]'], 
+                bases: ['伏特加 Vodka', '灰雁清泉'], 
+                notes: { top: '微苦葡萄柚', middle: '盐碱地 · 铃兰', baseNote: '琥珀 · 纸浆' },
+                names: ['咸味眼泪 Salty Tear'],
+                quote: '不被理解的瞬间，都化作这杯酒里不易察觉的咸。' 
+            },
+            tired: { 
+                label: '疲惫与下沉', 
+                colors: ['from-[#3E2b2C] to-[#232526]'], 
+                blobColors: ['bg-[#603813]', 'bg-[#3E2b2C]', 'bg-[#b29f94]'], 
+                bases: ['咖啡利口酒', '黑啤 Stout'], 
+                notes: { top: '重烘咖啡 · 焦糖', middle: '麦芽 · 榛子', baseNote: '皮革 · 顿加豆' },
+                names: ['深度睡眠 Deep Sleep'],
+                quote: '世界很吵，但你可以关灯。这杯酒是你的休止符。' 
+            },
+            disappointed: { 
+                label: '失落与空白', 
+                colors: ['from-[#BDC3C7] to-[#2C3E50]'], 
+                blobColors: ['bg-[#BDC3C7]', 'bg-[#7F8C8D]', 'bg-[#2C3E50]'], 
+                bases: ['干味马丁尼 Dry Martini', '苦艾酒'], 
+                notes: { top: '冷空气 · 柠檬', middle: '干枯玫瑰', baseNote: '烟灰 · 木屑' },
+                names: ['余烬 Embers'],
+                quote: '期待落空后的灰烬，在冰块消融中归于平静。' 
+            },
+            calm: { 
+                label: '平静与本心', 
+                colors: ['from-[#D7DDE8] to-[#757F9A]'], 
+                blobColors: ['bg-[#BBD2C5]', 'bg-[#93A5CF]', 'bg-[#757F9A]'], 
+                bases: ['白葡萄酒', '白朗姆'], 
+                notes: { top: '青草 · 梨子', middle: '绿茶 · 铃兰', baseNote: '檀香 · 棉花' },
+                names: ['禅意花园 Zen Garden'],
+                quote: '心若止水，万物皆安。这就足够了。' 
             }
-            last.lastX=x; last.lastY=y; last.lastZ=z; last.lastTime=now;
         };
-        if(window.DeviceMotionEvent){
-            window.addEventListener('devicemotion',handleMotion,true);
-        }
-        return ()=>{
-            if(window.DeviceMotionEvent) window.removeEventListener('devicemotion',handleMotion);
-        }
-    },[]);
 
-    useEffect(()=>{
-        if(view==='ANALYSIS' && shakeProgress>=100){
-            generateDrink();
-        }
-    },[shakeProgress]);
+        const App = () => {
+            const [view, setView] = useState('ANALYSIS'); 
+            const [inputText, setInputText] = useState('');
+            const [moodCategory, setMoodCategory] = useState('calm'); 
+            const [currentDrink, setCurrentDrink] = useState(null);
+            const [history, setHistory] = useState([]);
 
-    const handleInputChange=(e)=>{
-        const text=e.target.value; setInputText(text);
-        const keywords={
-            joy:/开心|快乐|好|棒|耶|赞|喜|笑|期待|多巴胺|顺利|赢|爽|愉快|nice|great|good/i,
-            love:/爱|喜欢|心动|温柔|抱|亲|甜|浪漫|情|想念|miss|love|like|crush/i,
-            anger:/烦|躁|怒|气|火|厌|滚|厌恶|讨厌|fuck|shit|恼|吵/i,
-            anxiety:/焦|不安|怕|慌|压力|紧张|悬|煎熬|忐忑|应激|stress|nervous/i,
-            sadness:/难过|悲|哭|哀|痛|伤|凉|孤独|寂寞|绝望|泪|凄/i,
-            jealousy:/嫉妒|酸|吃醋|眼红|羡慕|凭什么|红眼|比我好|jealous|envy/i,
-            grievance:/委屈|冤枉|不公|凭什么|难受|憋屈|grievance|unfair/i,
-            tired:/累|困|疲|乏|枯|竭|耗|加班|想睡|tired|exhausted/i,
-            disappointed:/失望|落空|算了|无望|灰心|变了|失落|灰烬/i,
-            calm:/平静|冷静|淡定|安宁|平和|calm|peace|chill|放松/i
-        };
-        if(keywords.anger.test(text)) setMoodCategory('anger');
-        else if(keywords.jealousy.test(text)) setMoodCategory('jealousy');
-        else if(keywords.grievance.test(text)) setMoodCategory('grievance');
-        else if(keywords.anxiety.test(text)) setMoodCategory('anxiety');
-        else if(keywords.sadness.test(text)) setMoodCategory('sadness');
-        else if(keywords.disappointed.test(text)) setMoodCategory('disappointed');
-        else if(keywords.tired.test(text)) setMoodCategory('tired');
-        else if(keywords.love.test(text)) setMoodCategory('love');
-        else if(keywords.joy.test(text)) setMoodCategory('joy');
-        else setMoodCategory('calm');
-    };
+            // 新增：晃动检测状态
+            const [shakeProgress, setShakeProgress] = useState(0);
+            const [shakeMessage, setShakeMessage] = useState('');
+            const [isShaking, setIsShaking] = useState(false);
 
-    const generateDrink=()=>{
-        if(!inputText.trim()) return;
-        setView('MIXING');
-        const data=EMOTION_DATABASE[moodCategory];
-        const abv=5+(shakeProgress/100)*20;
-        const drink={id:Date.now(),mood:moodCategory,name:data.names[0],colorClass:data.colors[0],blobColors:data.blobColors,
-            ingredients:{base:data.bases[Math.floor(Math.random()*data.bases.length)],...data.notes},
-            quote:data.quote, abv:abv.toFixed(1)};
-        setCurrentDrink(drink);
-        setTimeout(()=>{
-            setHistory(prev=>[drink,...prev]);
-            setView('RESULT');
-            setShakeProgress(0);
-        },3500);
-    };
+            const lastShakeTime = useRef(Date.now());
+            const shakeCountRef = useRef(0);
 
-    // 渲染部分完全沿用原版，唯一修改 ANALYSIS 页增加 shakeProgress 显示
-    return(
-        <div className="h-full w-full flex flex-col relative">
-            <div className="grain-overlay"></div>
-            <main className="relative z-10 flex-1 overflow-y-auto scrollbar-hide px-6 flex flex-col items-center justify-center">
-                {view==='ANALYSIS' && (
-                    <div className="flex flex-col items-center w-full max-w-sm">
-                        <textarea className="w-full p-4 text-center text-2xl font-artistic text-[#EAEAEA] placeholder-white/10 focus:outline-none transition-all leading-relaxed mb-4"
-                            placeholder="告诉我，你现在感觉如何？" rows="2" value={inputText} onChange={handleInputChange}/>
-                        <div className="w-full h-3 bg-white/10 rounded-full overflow-hidden mb-4">
-                            <div className="h-full bg-gradient-to-r from-pink-500 to-purple-500 transition-all" style={{width:`${shakeProgress}%`}}></div>
-                        </div>
-                        <span className="text-xs text-white/40 font-artistic mb-4">{shakeProgress<100?'摇晃手机调酒':'摇晃完成，生成中...'}</span>
+            // 新增：晃动检测逻辑
+            const handleDeviceMotion = (event) => {
+                if (view !== 'ANALYSIS' || !inputText.trim()) return;
+
+                const acceleration = event.accelerationIncludingGravity;
+                const shake = Math.sqrt(
+                    Math.pow(acceleration.x, 2) +
+                    Math.pow(acceleration.y, 2) +
+                    Math.pow(acceleration.z - 9.81, 2)
+                );
+
+                const currentTime = Date.now();
+                const timeDifference = currentTime - lastShakeTime.current;
+
+                if (shake > 12 && timeDifference > 100) {
+                    lastShakeTime.current = currentTime;
+                    shakeCountRef.current++;
+                    
+                    setIsShaking(true);
+                    setTimeout(() => setIsShaking(false), 300);
+
+                    if (shakeCountRef.current >= 5) {
+                        window.removeEventListener('devicemotion', handleDeviceMotion);
+                        generateDrink();
+                        shakeCountRef.current = 0;
+                        setShakeProgress(0);
+                        setShakeMessage('');
+                    } else {
+                        const newProgress = Math.min(100, (shakeCountRef.current / 5) * 100);
+                        setShakeProgress(newProgress);
+                        setShakeMessage(`晃动${5 - shakeCountRef.current}次即可调制`);
+                    }
+                }
+            };
+
+            useEffect(() => {
+                if (view === 'ANALYSIS' && inputText.trim()) {
+                    if (window.DeviceMotionEvent) {
+                        window.addEventListener('devicemotion', handleDeviceMotion);
+                        setShakeMessage('晃动手机开始调制');
+                    } else {
+                        setShakeMessage('您的设备不支持晃动检测');
+                    }
+                } else {
+                    window.removeEventListener('devicemotion', handleDeviceMotion);
+                    setShakeProgress(0);
+                    setShakeMessage('');
+                    shakeCountRef.current = 0;
+                }
+
+                return () => {
+                    window.removeEventListener('devicemotion', handleDeviceMotion);
+                };
+            }, [view, inputText]);
+
+            const handleInputChange = (e) => {
+                const text = e.target.value;
+                setInputText(text);
+                
+                const keywords = {
+                    joy: /开心|快乐|好|棒|耶|赞|喜|笑|期待|多巴胺|顺利|赢|爽|愉快|nice|great|good/i,
+                    love: /爱|喜欢|心动|温柔|抱|亲|甜|浪漫|情|想念|miss|love|like|crush/i,
+                    anger: /烦|躁|怒|气|火|厌|滚|厌恶|讨厌|fuck|shit|恼|吵/i,
+                    anxiety: /焦|不安|怕|慌|压力|紧张|悬|煎熬|煎熬|忐忑|应激|stress|nervous/i,
+                    sadness: /难过|悲|哭|哀|伤心|寂寞|绝望|泪|凄/i,
+                    jealousy: /嫉妒|酸|吃醋|眼红|羡慕|凭什么|红眼|比我好|jealous|envy/i,
+                    grievance: /委屈|冤枉|不公|凭什么|难受|憋屈|grievance|unfair/i,
+                    tired: /累|困|疲|乏|枯|竭|耗|加班|想睡|tired|exhausted/i,
+                    disappointed: /失望|落空|算了|无望|灰心|变了|失落|灰烬/i,
+                    calm: /平静|冷静|淡定|安宁|平和|calm|peace|chill|放松/i
+                };
+
+                if (keywords.anger.test(text)) setMoodCategory('anger');
+                else if (keywords.jealousy.test(text)) setMoodCategory('jealousy');
+                else if (keywords.grievance.test(text)) setMoodCategory('grievance');
+                else if (keywords.anxiety.test(text)) setMoodCategory('anxiety');
+                else if (keywords.sadness.test(text)) setMoodCategory('sadness');
+                else if (keywords.disappointed.test(text)) setMoodCategory('disappointed');
+                else if (keywords.tired.test(text)) setMoodCategory('tired');
+                else if (keywords.love.test(text)) setMoodCategory('love');
+                else if (keywords.joy.test(text)) setMoodCategory('joy');
+                else setMoodCategory('calm');
+            };
+
+            const generateDrink = () => {
+                setView('MIXING');
+                const data = EMOTION_DATABASE[moodCategory];
+                const drink = {
+                    id: Date.now(),
+                    mood: moodCategory,
+                    name: data.names[0],
+                    colorClass: data.colors[0],
+                    blobColors: data.blobColors,
+                    ingredients: { base: data.bases[Math.floor(Math.random() * data.bases.length)], ...data.notes },
+                    quote: data.quote,
+                    abv: (5 + Math.random() * 20).toFixed(1)
+                };
+                setCurrentDrink(drink);
+                setTimeout(() => {
+                    setHistory(prev => [drink, ...prev]);
+                    setView('RESULT');
+                }, 3500);
+            };
+
+            const SharedCircleContainer = ({ children, className = "" }) => (
+                <div className={`ios-circle-fix border border-white/20 bg-[#1a1a1c]/40 z-10 ${className}`}>
+                    <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-30 mix-blend-overlay z-20 pointer-events-none"></div>
+                    {children}
+                </div>
+            );
+
+            const FlowingLiquid = ({ colorClass, heightClass = "h-1/2", opacity = "opacity-60", isFilling = false }) => (
+                <div className={`absolute bottom-0 inset-x-0 bg-gradient-to-t ${colorClass} ${opacity} ${isFilling ? 'animate-fill' : heightClass} z-10 transition-all duration-1000 overflow-hidden`}>
+                    <div className="absolute -top-6 left-0 w-[200%] h-12 animate-wave opacity-40 bg-white/20 blur-[1px]"></div>
+                    <div className="absolute -top-4 left-[-50%] w-[200%] h-12 animate-wave-slow opacity-20 bg-white/10 blur-[1px]"></div>
+                </div>
+            );
+
+            return (
+                <div className="h-full w-full flex flex-col relative">
+                    <div className="grain-overlay"></div>
+                    
+                    {/* 环境光背景 */}
+                    <div className="fixed inset-0 z-0 bg-[#0c0c0e]">
+                        <div className={`absolute -top-[10%] -left-[10%] w-full h-[80%] rounded-full blur-[120px] opacity-[0.1] transition-all duration-[2000ms] ${EMOTION_DATABASE[moodCategory].blobColors[0]} animate-blob`}></div>
+                        <div className={`absolute bottom-0 right-0 w-full h-[60%] rounded-full blur-[120px] opacity-[0.06] transition-all duration-[2000ms] ${EMOTION_DATABASE[moodCategory].blobColors[1]} animate-blob animation-delay-2000`}></div>
                     </div>
-                )}
-            </main>
-        </div>
-    );
-};
 
-const root=ReactDOM.createRoot(document.getElementById('root'));
-root.render(<App />);
-</script>
+                    {/* 导航 */}
+                    <nav className="relative z-50 flex justify-between items-center px-6 safe-top h-16 shrink-0">
+                        {view !== 'ANALYSIS' ? (
+                            <button onClick={() => setView('ANALYSIS')} className="p-2 -ml-2 text-white/30 active:text-white transition-colors">
+                                <ChevronLeft />
+                            </button>
+                        ) : <div className="w-10"></div>}
+                        <div className="text-[10px] tracking-[0.4em] font-light text-white/20 uppercase">情绪酒馆</div>
+                        <button onClick={() => setView('HISTORY')} className="p-2 -mr-2 text-white/30 active:text-white transition-colors">
+                            <HistoryIcon />
+                        </button>
+                    </nav>
+
+                    {/* 内容区域 */}
+                    <main className="relative z-10 flex-1 overflow-y-auto scrollbar-hide px-6">
+                        
+                        {view === 'ANALYSIS' && (
+                            <div className="min-h-full flex flex-col items-center justify-center py-10 animate-in fade-in duration-700">
+                                <SharedCircleContainer className={`mb-14 ${isShaking ? 'animate-[shake_0.3s_ease-in-out]' : 'animate-float'}`}>
+                                    <FlowingLiquid colorClass={EMOTION_DATABASE[moodCategory].colors[0]} heightClass="h-[40%]" />
+                                </SharedCircleContainer>
+                                
+                                <div className="w-full max-w-sm flex flex-col items-center">
+                                    <div className="h-6 mb-2">
+                                        {inputText && <span className="font-artistic text-xl text-white/40">{EMOTION_DATABASE[moodCategory].label}</span>}
+                                    </div>
+                                    <textarea 
+                                        className="w-full p-4 text-center text-2xl font-artistic text-[#EAEAEA] placeholder-white/10 focus:outline-none transition-all leading-relaxed mb-10"
+                                        placeholder="告诉我，你现在感觉如何？"
+                                        rows="2"
+                                        value={inputText}
+                                        onChange={handleInputChange}
+                                    />
+                                    
+                                    {/* 新增：晃动提示和进度条 */}
+                                    {inputText.trim() && (
+                                        <div className="w-full max-w-xs mb-6">
+                                            <div className="text-center text-sm font-artistic text-white/30 mb-2">{shakeMessage}</div>
+                                            <div className="w-full h-1 bg-white/5 rounded-full overflow-hidden">
+                                                <div 
+                                                    className="h-full bg-white/30 transition-all duration-300"
+                                                    style={{ width: `${shakeProgress}%` }}
+                                                ></div>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    <button 
+                                        onClick={generateDrink}
+                                        disabled={!inputText.trim()}
+                                        className="w-44 py-4 border border-white/20 rounded-full text-[10px] tracking-[0.4em] uppercase active:scale-95 active:bg-white/5 disabled:opacity-5 transition-all"
+                                    >
+                                        开始调制
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+
+                        {view === 'MIXING' && (
+                            <div className="min-h-full flex flex-col items-center justify-center">
+                                <SharedCircleContainer className="mb-12">
+                                    <FlowingLiquid colorClass={currentDrink?.colorClass} isFilling={true} opacity="opacity-80" />
+                                    <div className="absolute bottom-0 left-1/4 w-1 h-1 bg-white/60 rounded-full animate-bubble-rise z-20"></div>
+                                    <div className="absolute bottom-0 left-2/3 w-1.5 h-1.5 bg-white/40 rounded-full animate-bubble-rise animation-delay-1000 z-20"></div>
+                                </SharedCircleContainer>
+                                <div className="font-artistic text-white/30 animate-pulse tracking-[0.2em] text-sm">正在提取情绪精华...</div>
+                            </div>
+                        )}
+
+                        {view === 'RESULT' && currentDrink && (
+                            <div className="flex flex-col items-center py-10 animate-in slide-in-from-bottom-10 duration-1000">
+                                <div className="text-[9px] uppercase tracking-[0.4em] text-white/20 mb-4">NO. {currentDrink.id.toString().slice(-4)}</div>
+                                <h1 className="text-4xl font-artistic font-light mb-2 text-center leading-tight tracking-wide">{currentDrink.name.split(' ')[0]}</h1>
+                                <h2 className="text-sm font-artistic text-white/30 mb-12 uppercase tracking-[0.3em] font-light">{currentDrink.name.split(' ').slice(1).join(' ')}</h2>
+                                
+                                <SharedCircleContainer className="mb-14">
+                                    <div className="absolute inset-0 z-0 opacity-40">
+                                        <div className={`absolute top-0 -left-6 w-52 h-52 ${currentDrink.blobColors[0]} rounded-full filter blur-[45px] animate-blob`}></div>
+                                        <div className={`absolute top-0 -right-6 w-52 h-52 ${currentDrink.blobColors[1]} rounded-full filter blur-[45px] animate-blob animation-delay-2000`}></div>
+                                    </div>
+                                    <FlowingLiquid colorClass={currentDrink.colorClass} heightClass="h-[65%]" opacity="opacity-45" />
+                                    <div className="absolute inset-0 pointer-events-none z-30">
+                                        <div className="absolute bottom-12 left-1/4 w-0.5 h-0.5 bg-white/40 rounded-full animate-particle-up"></div>
+                                        <div className="absolute bottom-24 left-1/2 w-1 h-1 bg-white/30 rounded-full animate-particle-up animation-delay-1000"></div>
+                                        <div className="absolute bottom-16 left-3/4 w-0.5 h-0.5 bg-white/20 rounded-full animate-particle-up animation-delay-2000"></div>
+                                    </div>
+                                    <div className="relative z-40 flex flex-col items-center justify-center h-full">
+                                        <span className="font-artistic text-5xl drop-shadow-2xl text-white">{currentDrink.abv}%</span>
+                                        <span className="text-[8px] tracking-[0.2em] uppercase opacity-40 mt-3 font-light">酒精度 / vol</span>
+                                    </div>
+                                </SharedCircleContainer>
+
+                                <div className="w-full border-t border-white/10 pt-12 pb-8 flex flex-col items-center">
+                                    <h3 className="font-artistic text-2xl text-white/70 mb-10 font-light tracking-[0.2em]">情绪配方</h3>
+                                    <div className="grid grid-cols-2 gap-y-12 gap-x-12 text-center w-full max-w-xs px-2">
+                                        <div className="flex flex-col items-center">
+                                            <span className="text-[8px] tracking-widest text-white/20 uppercase mb-3">基酒 | Base</span>
+                                            <span className="font-artistic text-lg text-white/80 font-light">{currentDrink.ingredients.base}</span>
+                                        </div>
+                                        <div className="flex flex-col items-center">
+                                            <span className="text-[8px] tracking-widest text-white/20 uppercase mb-3">前调 | Top</span>
+                                            <span className="font-artistic text-lg text-white/80 font-light">{currentDrink.ingredients.top}</span>
+                                        </div>
+                                        <div className="flex flex-col items-center">
+                                            <span className="text-[8px] tracking-widest text-white/20 uppercase mb-3">中调 | Middle</span>
+                                            <span className="font-artistic text-lg text-white/80 font-light">{currentDrink.ingredients.middle}</span>
+                                        </div>
+                                        <div className="flex flex-col items-center">
+                                            <span className="text-[8px] tracking-widest text-white/20 uppercase mb-3">尾调 | Tail</span>
+                                            <span className="font-artistic text-lg text-white/80 font-light">{currentDrink.ingredients.baseNote}</span>
+                                        </div>
+                                    </div>
+                                    <div className="mt-20 pt-12 border-t border-white/5 flex flex-col items-center w-full">
+                                        <Sparkles />
+                                        <p className="font-artistic text-xl text-white/40 leading-relaxed italic mt-8 px-8 text-center font-light">“ {currentDrink.quote} ”</p>
+                                    </div>
+                                </div>
+
+                                <button onClick={() => { setInputText(''); setView('ANALYSIS'); }} className="mt-6 p-5 rounded-full border border-white/10 active:scale-90 active:bg-white/5 text-white/30 active:text-white transition-all">
+                                    <RefreshCw />
+                                </button>
+                                
+                                <div className="h-24 shrink-0"></div>
+                            </div>
+                        )}
+
+                        {view === 'HISTORY' && (
+                            <div className="py-6 flex flex-col min-h-full">
+                                <h2 className="text-3xl font-artistic text-center mb-10 font-light tracking-widest">历史酒单</h2>
+                                {history.length === 0 ? (
+                                    <div className="flex-1 flex items-center justify-center text-white/10 font-artistic text-xl italic py-20">暂无调酒记录</div>
+                                ) : (
+                                    <div className="space-y-px bg-white/5 border border-white/10 rounded-sm overflow-hidden mb-10">
+                                        {history.map(item => (
+                                            <div key={item.id} onClick={() => { setCurrentDrink(item); setView('RESULT'); }} className="p-6 flex justify-between items-center active:bg-white/10 border-b border-white/5 last:border-0 transition-colors">
+                                                <div className="flex items-center gap-5">
+                                                    <div className={`w-2 h-2 rounded-full ${item.blobColors[0]} opacity-40`}></div>
+                                                    <div className="flex flex-col text-left">
+                                                        <span className="font-artistic text-xl text-white/70">{item.name.split(' ')[0]}</span>
+                                                        <span className="text-[8px] text-white/20 tracking-tighter uppercase mt-1">NO. {item.id.toString().slice(-4)}</span>
+                                                    </div>
+                                                </div>
+                                                <span className="font-artistic text-lg text-white/30">{item.abv}%</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                    </main>
+
+                    <div className="h-6 safe-bottom shrink-0 bg-transparent"></div>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
 </body>
 </html>
