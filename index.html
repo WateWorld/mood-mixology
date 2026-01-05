@@ -110,6 +110,29 @@
             border-radius: 0;
             font-size: 18px !important;
         }
+
+        /* 新增：晃动动画 */
+        @keyframes shake {
+            0%, 100% { transform: rotate(0deg) translateZ(0); }
+            25% { transform: rotate(-5deg) translateZ(0); }
+            75% { transform: rotate(5deg) translateZ(0); }
+        }
+        .animate-shake {
+            animation: shake 0.3s ease-in-out;
+        }
+
+        /* 新增：输入框美化 */
+        .custom-textarea {
+            background: rgba(26, 26, 28, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+        .custom-textarea:focus {
+            border-color: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.05);
+        }
     </style>
 </head>
 <body class="bg-[#0c0c0e]">
@@ -227,13 +250,14 @@
             const [shakeProgress, setShakeProgress] = useState(0);
             const [shakeMessage, setShakeMessage] = useState('');
             const [isShaking, setIsShaking] = useState(false);
+            const [canMix, setCanMix] = useState(false);
 
             const lastShakeTime = useRef(Date.now());
             const shakeCountRef = useRef(0);
 
             // 新增：晃动检测逻辑
             const handleDeviceMotion = (event) => {
-                if (view !== 'ANALYSIS' || !inputText.trim()) return;
+                if (view !== 'ANALYSIS' || !inputText.trim() || canMix) return;
 
                 const acceleration = event.accelerationIncludingGravity;
                 const shake = Math.sqrt(
@@ -254,20 +278,19 @@
 
                     if (shakeCountRef.current >= 5) {
                         window.removeEventListener('devicemotion', handleDeviceMotion);
-                        generateDrink();
-                        shakeCountRef.current = 0;
-                        setShakeProgress(0);
-                        setShakeMessage('');
+                        setCanMix(true);
+                        setShakeMessage('调制完成，点击酒杯查看');
+                        setShakeProgress(100);
                     } else {
                         const newProgress = Math.min(100, (shakeCountRef.current / 5) * 100);
                         setShakeProgress(newProgress);
-                        setShakeMessage(`晃动${5 - shakeCountRef.current}次即可调制`);
+                        setShakeMessage(`继续晃动手机...`);
                     }
                 }
             };
 
             useEffect(() => {
-                if (view === 'ANALYSIS' && inputText.trim()) {
+                if (view === 'ANALYSIS' && inputText.trim() && !canMix) {
                     if (window.DeviceMotionEvent) {
                         window.addEventListener('devicemotion', handleDeviceMotion);
                         setShakeMessage('晃动手机开始调制');
@@ -276,15 +299,18 @@
                     }
                 } else {
                     window.removeEventListener('devicemotion', handleDeviceMotion);
-                    setShakeProgress(0);
-                    setShakeMessage('');
-                    shakeCountRef.current = 0;
+                    if (view !== 'ANALYSIS') {
+                        setShakeProgress(0);
+                        setShakeMessage('');
+                        setCanMix(false);
+                        shakeCountRef.current = 0;
+                    }
                 }
 
                 return () => {
                     window.removeEventListener('devicemotion', handleDeviceMotion);
                 };
-            }, [view, inputText]);
+            }, [view, inputText, canMix]);
 
             const handleInputChange = (e) => {
                 const text = e.target.value;
@@ -342,8 +368,9 @@
                 </div>
             );
 
-            const FlowingLiquid = ({ colorClass, heightClass = "h-1/2", opacity = "opacity-60", isFilling = false }) => (
-                <div className={`absolute bottom-0 inset-x-0 bg-gradient-to-t ${colorClass} ${opacity} ${isFilling ? 'animate-fill' : heightClass} z-10 transition-all duration-1000 overflow-hidden`}>
+            const FlowingLiquid = ({ colorClass, heightClass = "h-1/2", opacity = "opacity-60", isFilling = false, progress = 0 }) => (
+                <div className={`absolute bottom-0 inset-x-0 bg-gradient-to-t ${colorClass} ${opacity} ${isFilling ? 'animate-fill' : ''} z-10 transition-all duration-500 overflow-hidden`}
+                     style={{ height: `${progress}%` }}>
                     <div className="absolute -top-6 left-0 w-[200%] h-12 animate-wave opacity-40 bg-white/20 blur-[1px]"></div>
                     <div className="absolute -top-4 left-[-50%] w-[200%] h-12 animate-wave-slow opacity-20 bg-white/10 blur-[1px]"></div>
                 </div>
@@ -377,41 +404,43 @@
                         
                         {view === 'ANALYSIS' && (
                             <div className="min-h-full flex flex-col items-center justify-center py-10 animate-in fade-in duration-700">
-                                <SharedCircleContainer className={`mb-14 ${isShaking ? 'animate-[shake_0.3s_ease-in-out]' : 'animate-float'}`}>
-                                    <FlowingLiquid colorClass={EMOTION_DATABASE[moodCategory].colors[0]} heightClass="h-[40%]" />
-                                </SharedCircleContainer>
+                                <div 
+                                    className={`mb-14 cursor-pointer ${isShaking ? 'animate-shake' : 'animate-float'}`}
+                                    onClick={() => canMix && generateDrink()}
+                                >
+                                    <SharedCircleContainer>
+                                        <FlowingLiquid 
+                                            colorClass={EMOTION_DATABASE[moodCategory].colors[0]} 
+                                            progress={shakeProgress}
+                                            opacity={canMix ? "opacity-80" : "opacity-60"}
+                                        />
+                                    </SharedCircleContainer>
+                                </div>
                                 
                                 <div className="w-full max-w-sm flex flex-col items-center">
                                     <div className="h-6 mb-2">
                                         {inputText && <span className="font-artistic text-xl text-white/40">{EMOTION_DATABASE[moodCategory].label}</span>}
                                     </div>
                                     <textarea 
-                                        className="w-full p-4 text-center text-2xl font-artistic text-[#EAEAEA] placeholder-white/10 focus:outline-none transition-all leading-relaxed mb-10"
+                                        className="custom-textarea w-full p-4 text-center text-2xl font-artistic text-[#EAEAEA] placeholder-white/10 focus:outline-none transition-all leading-relaxed mb-10 rounded-lg"
                                         placeholder="告诉我，你现在感觉如何？"
                                         rows="2"
                                         value={inputText}
                                         onChange={handleInputChange}
                                     />
                                     
-                                    {/* 新增：晃动提示和进度条 */}
                                     {inputText.trim() && (
                                         <div className="w-full max-w-xs mb-6">
                                             <div className="text-center text-sm font-artistic text-white/30 mb-2">{shakeMessage}</div>
-                                            <div className="w-full h-1 bg-white/5 rounded-full overflow-hidden">
-                                                <div 
-                                                    className="h-full bg-white/30 transition-all duration-300"
-                                                    style={{ width: `${shakeProgress}%` }}
-                                                ></div>
-                                            </div>
                                         </div>
                                     )}
 
                                     <button 
                                         onClick={generateDrink}
-                                        disabled={!inputText.trim()}
+                                        disabled={!canMix}
                                         className="w-44 py-4 border border-white/20 rounded-full text-[10px] tracking-[0.4em] uppercase active:scale-95 active:bg-white/5 disabled:opacity-5 transition-all"
                                     >
-                                        开始调制
+                                        查看调制结果
                                     </button>
                                 </div>
                             </div>
